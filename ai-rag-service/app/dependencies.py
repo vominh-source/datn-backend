@@ -1,15 +1,13 @@
-from chromadb import Client
-from chromadb.config import Settings
+import chromadb
 from sentence_transformers import SentenceTransformer
-from app.config import settings
-
-# Vector DB
-chroma_client = Client(Settings(
-    chroma_db_impl="duckdb+parquet",
-    persist_directory=settings.chroma_dir
-))
-
-patient_collection = chroma_client.get_or_create_collection("patients")
+import os
 
 # Embedding model
 embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+
+# Vector DB - ChromaDB PersistentClient
+PERSIST_PATH = os.getenv("CHROMA_DIR", "./vectordb")
+os.makedirs(PERSIST_PATH, exist_ok=True)
+
+chroma_client = chromadb.PersistentClient(path=PERSIST_PATH)
+collection = chroma_client.get_or_create_collection(name="medical_chat_memory")
